@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: journeymaster
+  labels:
+    app: journeymaster
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: journeymaster
+  template:
+    metadata:
+      labels:
+        app: journeymaster
+    spec:
+      containers:
+      - name: journeymaster
+        image: journeymaster:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: API_PORT
+          value: "8080"
+        - name: API_PREFIX
+          value: "/v1"
+        - name: API_CREDENTIALS
+          value: "test:test"
+        - name: GIN_MODE
+          value: "release"
+        - name: TLS_PEM
+          value: "conf/cert.pem"
+        - name: TLS_KEY
+          value: "conf/key.pem"
+        - name: TLS_ENABLED
+          value: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: journeymaster-service
+spec:
+  selector:
+    app: journeymaster
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
